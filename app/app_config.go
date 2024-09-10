@@ -53,7 +53,10 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
+	abslayermodulev1 "github.com/kiarash-naderi/myapp/api/myapp/abslayer/module"
 	myappmodulev1 "github.com/kiarash-naderi/myapp/api/myapp/myapp/module"
+	_ "github.com/kiarash-naderi/myapp/x/abslayer/module" // import for side-effects
+	abslayermoduletypes "github.com/kiarash-naderi/myapp/x/abslayer/types"
 	_ "github.com/kiarash-naderi/myapp/x/myapp/module" // import for side-effects
 	myappmoduletypes "github.com/kiarash-naderi/myapp/x/myapp/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
@@ -94,6 +97,7 @@ var (
 		circuittypes.ModuleName,
 		// chain modules
 		myappmoduletypes.ModuleName,
+		abslayermoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
 
@@ -119,6 +123,7 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		myappmoduletypes.ModuleName,
+		abslayermoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
@@ -138,6 +143,7 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		myappmoduletypes.ModuleName,
+		abslayermoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
 
@@ -296,6 +302,10 @@ var (
 			{
 				Name:   myappmoduletypes.ModuleName,
 				Config: appconfig.WrapAny(&myappmodulev1.Module{}),
+			},
+			{
+				Name:   abslayermoduletypes.ModuleName,
+				Config: appconfig.WrapAny(&abslayermodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package myapp.abslayer;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "myapp/abslayer/params.proto";
+
+option go_package = "github.com/kiarash-naderi/myapp/x/abslayer/types";
+
+// GenesisState defines the abslayer module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}

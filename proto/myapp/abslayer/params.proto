@@ -1,0 +1,15 @@
+syntax = "proto3";
+package myapp.abslayer;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/kiarash-naderi/myapp/x/abslayer/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "myapp/x/abslayer/Params";
+  option (gogoproto.equal) = true;
+
+  
+}
