@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package myapp.abslayer;
 
 import "amino/amino.proto";
@@ -6,6 +7,8 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "myapp/abslayer/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 
 option go_package = "github.com/kiarash-naderi/myapp/x/abslayer/types";
 
@@ -16,6 +19,9 @@ service Msg {
   // UpdateParams defines a (governance) operation for updating the module
   // parameters. The authority defaults to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // SendToken handles the sending of tokens between addresses
+  rpc SendToken(MsgSendToken) returns (MsgSendTokenResponse); // اضافه کردن این خط
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -38,3 +44,13 @@ message MsgUpdateParams {
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
+
+// MsgSendToken defines a message for sending tokens // اضافه کردن پیام MsgSendToken
+message MsgSendToken {
+  string sender = 1;
+  string receiver = 2;
+  repeated cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+// Response after sending tokens // اضافه کردن پیام MsgSendTokenResponse
+message MsgSendTokenResponse {}

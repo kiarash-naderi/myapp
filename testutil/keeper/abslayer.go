@@ -16,36 +16,48 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/require"
+	
 
 	"github.com/kiarash-naderi/myapp/x/abslayer/keeper"
 	"github.com/kiarash-naderi/myapp/x/abslayer/types"
 )
 
+type MockBankKeeper struct{}
+
+func (m *MockBankKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error {
+    return nil
+}
+
+
 func AbslayerKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
-	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
+    storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 
-	db := dbm.NewMemDB()
-	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
-	stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
-	require.NoError(t, stateStore.LoadLatestVersion())
+    db := dbm.NewMemDB()
+    stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
+    stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
+    require.NoError(t, stateStore.LoadLatestVersion())
 
-	registry := codectypes.NewInterfaceRegistry()
-	cdc := codec.NewProtoCodec(registry)
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+    registry := codectypes.NewInterfaceRegistry()
+    cdc := codec.NewProtoCodec(registry)
+    authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	k := keeper.NewKeeper(
-		cdc,
-		runtime.NewKVStoreService(storeKey),
-		log.NewNopLogger(),
-		authority.String(),
-	)
+    // Mocking BankKeeper for test purposes
+    bankKeeper := &MockBankKeeper{}
 
-	ctx := sdk.NewContext(stateStore, cmtproto.Header{}, false, log.NewNopLogger())
+    k := keeper.NewKeeper(
+        cdc,
+        runtime.NewKVStoreService(storeKey),
+        log.NewNopLogger(),
+        bankKeeper,       
+        authority.String(),
+    )
 
-	// Initialize params
-	if err := k.SetParams(ctx, types.DefaultParams()); err != nil {
-		panic(err)
-	}
+    ctx := sdk.NewContext(stateStore, cmtproto.Header{}, false, log.NewNopLogger())
 
-	return k, ctx
+    // Initialize params
+    if err := k.SetParams(ctx, types.DefaultParams()); err != nil {
+        panic(err)
+    }
+
+    return k, ctx
 }

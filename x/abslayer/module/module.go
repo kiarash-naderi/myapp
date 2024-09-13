@@ -192,23 +192,28 @@ type ModuleOutputs struct {
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
-	// default to governance authority if not provided
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
-	}
-	k := keeper.NewKeeper(
-		in.Cdc,
-		in.StoreService,
-		in.Logger,
-		authority.String(),
-	)
-	m := NewAppModule(
-		in.Cdc,
-		k,
-		in.AccountKeeper,
-		in.BankKeeper,
-	)
+    // default to governance authority if not provided
+    authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+    if in.Config.Authority != "" {
+        authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+    }
+    
+    // Pass BankKeeper as an additional argument to NewKeeper
+    k := keeper.NewKeeper(
+        in.Cdc,             // Codec
+        in.StoreService,    // KVStoreService
+        in.Logger,          // Logger
+        in.BankKeeper,      // BankKeeper (اضافه کردن BankKeeper به اینجا)
+        authority.String(), // Authority
+    )
 
-	return ModuleOutputs{AbslayerKeeper: k, Module: m}
+    m := NewAppModule(
+        in.Cdc,
+        k,
+        in.AccountKeeper,
+        in.BankKeeper,
+    )
+
+    return ModuleOutputs{AbslayerKeeper: k, Module: m}
 }
+

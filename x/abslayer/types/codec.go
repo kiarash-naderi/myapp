@@ -1,17 +1,22 @@
 package types
 
 import (
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	// this line is used by starport scaffolding # 1
+    "github.com/cosmos/cosmos-sdk/codec"
+    cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+    sdk "github.com/cosmos/cosmos-sdk/types"
+    "github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	// this line is used by starport scaffolding # 3
+// ModuleCdc defines the codec to be used by the module
+var (
+    ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+)
 
-	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgUpdateParams{},
-	)
-	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
+// RegisterInterfaces registers the necessary interfaces for the message
+func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+    registry.RegisterImplementations(
+        (*sdk.Msg)(nil),
+        &MsgSendToken{},
+    )
+    msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
