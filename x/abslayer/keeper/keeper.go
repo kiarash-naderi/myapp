@@ -53,7 +53,7 @@ func (k Keeper) Logger() log.Logger {
     return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) SendToken(ctx sdk.Context, msg types.MsgSendToken) error {
+func (k *Keeper) SendToken(ctx sdk.Context, msg types.MsgSendToken) error {
     sender, err := sdk.AccAddressFromBech32(msg.Sender)
     if err != nil {
         return errors.New("invalid sender address")
