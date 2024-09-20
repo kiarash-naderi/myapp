@@ -5,27 +5,23 @@ import (
 
     sdk "github.com/cosmos/cosmos-sdk/types"
     "github.com/kiarash-naderi/myapp/x/abslayer/types"
+    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 )
 
 type msgServer struct {
     Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the MsgServer interface
-// for the provided Keeper.
 func NewMsgServerImpl(keeper Keeper) types.MsgServer {
     return &msgServer{Keeper: keeper}
 }
 
-// SendToken handles MsgSendToken
-func (m msgServer) SendToken(goCtx context.Context, msg *types.MsgSendToken) (*types.MsgSendTokenResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-
-    // Call the SendToken function from the keeper to process the token transfer
-    err := m.Keeper.SendToken(ctx, *msg)
-    if err != nil {
-        return nil, err
+func (m msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+    if msg.Authority != m.GetAuthority() {
+        return nil, sdkerrors.ErrUnauthorized.Wrap("invalid authority")
     }
 
-    return &types.MsgSendTokenResponse{}, nil
+    m.Keeper.SetParams(sdk.UnwrapSDKContext(ctx), msg.Params)
+    return &types.MsgUpdateParamsResponse{}, nil
 }

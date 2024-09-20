@@ -2,6 +2,7 @@ package types
 
 import (
     sdk "github.com/cosmos/cosmos-sdk/types"
+    "github.com/golang/protobuf/proto"
     "errors"
 )
 
@@ -12,9 +13,13 @@ type MsgSendToken struct {
     Amount   sdk.Coins `json:"amount" yaml:"amount"`
 }
 
- type MsgSendTokenResponse struct{}
+type MsgSendTokenResponse struct{}
 
-
+type Transaction struct {
+    ID     string    `json:"id"`
+    Amount sdk.Coins `json:"amount"`
+    // سایر فیلدها می‌توانند اضافه شوند
+}
 
 // NewMsgSendToken creates a new MsgSendToken instance
 func NewMsgSendToken(sender string, receiver string, amount sdk.Coins) MsgSendToken {
@@ -39,7 +44,7 @@ func (msg MsgSendToken) ValidateBasic() error {
     if _, err := sdk.AccAddressFromBech32(msg.Receiver); err != nil {
         return errors.New("invalid receiver address")
     }
-    if !msg.Amount.IsAllPositive() {
+    if (!msg.Amount.IsAllPositive()) {
         return errors.New("amount must be positive")
     }
     return nil
@@ -59,20 +64,35 @@ func (msg MsgSendToken) GetSigners() []sdk.AccAddress {
     return []sdk.AccAddress{sender}
 }
 
-// Implementing ProtoMessage
+// Implementing ProtoMessage for MsgSendToken
 func (msg MsgSendToken) ProtoMessage() {}
 
 func (msg MsgSendToken) Reset() {
     msg = MsgSendToken{}
 }
 
-
 func (msg MsgSendToken) String() string {
     return string(sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg)))
 }
 
+// Implementing ProtoMessage for Transaction
+func (tx *Transaction) ProtoMessage() {}
+
+func (tx *Transaction) Reset() {
+    *tx = Transaction{}
+}
+
+func (tx *Transaction) String() string {
+    return proto.CompactTextString(tx)
+}
+
+func (tx *Transaction) Marshal() ([]byte, error) {
+    return proto.Marshal(tx)
+}
+
+func (tx *Transaction) Unmarshal(data []byte) error {
+    return proto.Unmarshal(data, tx)
+}
 
 // RouterKey is used for routing the messages in the module
 const RouterKey = ModuleName
-
-

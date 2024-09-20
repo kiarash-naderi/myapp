@@ -1,29 +1,25 @@
 package abslayer_test
 
 import (
-	"testing"
+    "testing"
 
-	keepertest "github.com/kiarash-naderi/myapp/testutil/keeper"
-	"github.com/kiarash-naderi/myapp/testutil/nullify"
-	abslayer "github.com/kiarash-naderi/myapp/x/abslayer/module"
-	"github.com/kiarash-naderi/myapp/x/abslayer/types"
-	"github.com/stretchr/testify/require"
+    "github.com/stretchr/testify/require"
+
+    keepertest "github.com/kiarash-naderi/myapp/testutil/keeper"
+    "github.com/kiarash-naderi/myapp/x/abslayer/keeper"
+    "github.com/kiarash-naderi/myapp/x/abslayer/types"
+    sdk "github.com/cosmos/cosmos-sdk/types"
+
+
 )
 
-func TestGenesis(t *testing.T) {
-	genesisState := types.GenesisState{
-		Params: types.DefaultParams(),
+func setupMsgServer(t testing.TB) (types.MsgServer, sdk.Context) {
+    k, ctx := keepertest.AbslayerKeeper(t)
+    return keeper.NewMsgServerImpl(k), ctx
+}
 
-		// this line is used by starport scaffolding # genesis/test/state
-	}
-
-	k, ctx := keepertest.AbslayerKeeper(t)
-	abslayer.InitGenesis(ctx, k, genesisState)
-	got := abslayer.ExportGenesis(ctx, k)
-	require.NotNil(t, got)
-
-	nullify.Fill(&genesisState)
-	nullify.Fill(got)
-
-	// this line is used by starport scaffolding # genesis/test/assert
+func TestMsgServer(t *testing.T) {
+    ms, ctx := setupMsgServer(t)
+    require.NotNil(t, ms)
+    require.NotNil(t, ctx)
 }

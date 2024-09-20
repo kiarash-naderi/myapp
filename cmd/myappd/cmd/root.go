@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -31,6 +32,9 @@ func NewRootCmd() *cobra.Command {
 		clientCtx          client.Context
 	)
 
+	// Debugging print statements
+	fmt.Println("Starting depinject.Inject")
+
 	if err := depinject.Inject(
 		depinject.Configs(app.AppConfig(),
 			depinject.Supply(
@@ -44,8 +48,11 @@ func NewRootCmd() *cobra.Command {
 		&moduleBasicManager,
 		&clientCtx,
 	); err != nil {
+		fmt.Println("Error in depinject.Inject:", err) // Debugging error print
 		panic(err)
 	}
+
+	fmt.Println("Completed depinject.Inject successfully")
 
 	rootCmd := &cobra.Command{
 		Use:           app.Name + "d",
@@ -59,20 +66,25 @@ func NewRootCmd() *cobra.Command {
 			clientCtx = clientCtx.WithCmdContext(cmd.Context())
 			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
+				fmt.Println("Error reading persistent command flags:", err) // Debugging error print
 				return err
 			}
 
 			clientCtx, err = config.ReadFromClientConfig(clientCtx)
 			if err != nil {
+				fmt.Println("Error reading from client config:", err) // Debugging error print
 				return err
 			}
 
 			if err := client.SetCmdClientContextHandler(clientCtx, cmd); err != nil {
+				fmt.Println("Error setting client context handler:", err) // Debugging error print
 				return err
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
 			customCMTConfig := initCometBFTConfig()
+
+			fmt.Println("Running server.InterceptConfigsPreRunHandler") // Debugging print
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCMTConfig)
 		},
@@ -95,6 +107,7 @@ func NewRootCmd() *cobra.Command {
 	})
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		fmt.Println("Error enhancing root command:", err) // Debugging error print
 		panic(err)
 	}
 
@@ -139,6 +152,7 @@ func ProvideClientContext(
 	txConfigOpts.TextualCoinMetadataQueryFn = authtxconfig.NewGRPCCoinMetadataQueryFn(clientCtx)
 	txConfig, err := tx.NewTxConfigWithOptions(clientCtx.Codec, txConfigOpts)
 	if err != nil {
+		fmt.Println("Error creating TxConfig:", err) // Debugging error print
 		panic(err)
 	}
 	clientCtx = clientCtx.WithTxConfig(txConfig)

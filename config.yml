@@ -1,5 +1,6 @@
 version: 1
 validation: sovereign
+chain_id: mychain-1
 accounts: 
 - name: alice
   coins:

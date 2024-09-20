@@ -1,74 +1,67 @@
 package keeper
 
 import (
-	"errors"
-	"fmt"
+    "errors"
+    "fmt"
+    "log"
 
-	"cosmossdk.io/core/store"
-	"cosmossdk.io/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+    storetypes "cosmossdk.io/store/types"
+    "github.com/cosmos/cosmos-sdk/codec"
+    sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiarash-naderi/myapp/x/abslayer/types"
+
+
+    "github.com/kiarash-naderi/myapp/x/abslayer/types"
 )
 
 type (
     Keeper struct {
-        cdc          codec.BinaryCodec
-        storeService store.KVStoreService
-        logger       log.Logger
-        bankKeeper   types.BankKeeper // This connects to the bank module to send coins
-        authority    string
+        cdc        codec.BinaryCodec
+        storeKey   storetypes.StoreKey
+        logger     log.Logger
+        bankKeeper types.BankKeeper
+        authority  string
     }
 )
 
 func NewKeeper(
     cdc codec.BinaryCodec,
-    storeService store.KVStoreService,
-    logger log.Logger,
-    bankKeeper types.BankKeeper, // Add the bank keeper here
+    storeKey storetypes.StoreKey,
+    logger *log.Logger,
+    bankKeeper types.BankKeeper,
     authority string,
-
 ) Keeper {
     if _, err := sdk.AccAddressFromBech32(authority); err != nil {
         panic(fmt.Sprintf("invalid authority address: %s", authority))
     }
 
     return Keeper{
-        cdc:          cdc,
-        storeService: storeService,
-        logger:       logger,
-        bankKeeper:   bankKeeper, // Initialize the bank keeper
-        authority:    authority,
+        cdc:        cdc,
+        storeKey:   storeKey,
+        logger:     *logger,
+        bankKeeper: bankKeeper,
+        authority:  authority,
     }
 }
 
-// GetAuthority returns the module's authority.
+// Data storage methods
+func (k *Keeper) StoreTransaction(ctx sdk.Context, tx types.Transaction) {
+    store := ctx.KVStore(k.storeKey)
+    bz := k.cdc.MustMarshal(&tx)
+    store.Set([]byte(tx.ID), bz)
+}
+
 func (k Keeper) GetAuthority() string {
     return k.authority
 }
 
-// Logger returns a module-specific logger.
-func (k Keeper) Logger() log.Logger {
-    return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k *Keeper) SendToken(ctx sdk.Context, msg types.MsgSendToken) error {
-    sender, err := sdk.AccAddressFromBech32(msg.Sender)
-    if err != nil {
-        return errors.New("invalid sender address")
+func (k Keeper) GetTransaction(ctx sdk.Context, id string) (types.Transaction, error) {
+    store := ctx.KVStore(k.storeKey)
+    bz := store.Get([]byte(id))
+    if bz == nil {
+        return types.Transaction{}, errors.New("transaction not found")
     }
-
-    receiver, err := sdk.AccAddressFromBech32(msg.Receiver)
-    if err != nil {
-        return errors.New("invalid receiver address")
-    }
-
-    // Send tokens
-    err = k.bankKeeper.SendCoins(ctx, sender, receiver, msg.Amount)
-    if err != nil {
-        return err
-    }
-
-    return nil
+    var tx types.Transaction
+    k.cdc.MustUnmarshal(bz, &tx)
+    return tx, nil
 }

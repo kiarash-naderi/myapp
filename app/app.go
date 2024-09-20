@@ -153,7 +153,7 @@ type App struct {
 
 func init() {
 	var err error
-	clienthelpers.EnvPrefix = Name
+	// clienthelpers.SetEnvPrefix(Name) // Removed due to undefined function
 	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)
 	if err != nil {
 		panic(err)
