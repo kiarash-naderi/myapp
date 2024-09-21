@@ -26,6 +26,11 @@ const (
 // this line is used by starport scaffolding # simapp/module/const
 )
 
+// AppModule defines the module structure
+type AppModule struct {
+	module.AppModuleBasic
+}
+
 // GenerateGenesisState creates a randomized GenState of the module.
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	accs := make([]string, len(simState.Accounts))

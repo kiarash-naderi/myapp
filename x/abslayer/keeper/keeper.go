@@ -3,8 +3,8 @@ package keeper
 import (
     "errors"
     "fmt"
-    "log"
-
+    
+    "cosmossdk.io/log"
     storetypes "cosmossdk.io/store/types"
     "github.com/cosmos/cosmos-sdk/codec"
     sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,16 +18,17 @@ type (
     Keeper struct {
         cdc        codec.BinaryCodec
         storeKey   storetypes.StoreKey
-        logger     log.Logger
+        logger     log.Logger   
         bankKeeper types.BankKeeper
         authority  string
     }
 )
 
+
 func NewKeeper(
     cdc codec.BinaryCodec,
     storeKey storetypes.StoreKey,
-    logger *log.Logger,
+    logger log.Logger,  // logger SDK ro estefade kon
     bankKeeper types.BankKeeper,
     authority string,
 ) Keeper {
@@ -38,11 +39,12 @@ func NewKeeper(
     return Keeper{
         cdc:        cdc,
         storeKey:   storeKey,
-        logger:     *logger,
+        logger:     logger,   
         bankKeeper: bankKeeper,
         authority:  authority,
     }
 }
+
 
 // Data storage methods
 func (k *Keeper) StoreTransaction(ctx sdk.Context, tx types.Transaction) {
